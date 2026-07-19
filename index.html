@@ -64,6 +64,7 @@
     letter-spacing:3px;text-transform:uppercase;transition:color .3s;
   }
   nav ul a:hover,nav ul a:focus-visible{color:var(--white)}
+  #burger{display:none;background:none;border:none;color:var(--ice);font-size:24px;cursor:pointer;padding:4px 8px}
   a:focus-visible,button:focus-visible{outline:2px solid var(--glow);outline-offset:3px;border-radius:4px}
 
   /* ── shared section bones ────────── */
@@ -206,11 +207,18 @@
   footer{position:relative;z-index:1;text-align:center;padding:30px;color:#5e6f9c;font-size:11px;letter-spacing:2px}
 
   @media (max-width:640px){
-    nav ul{gap:10px}
-    nav ul a{font-size:9px;letter-spacing:2px}
-    nav ul li:nth-child(n+5){display:none}
-    section{padding:96px 6vw 80px}
+  #burger{display:block}
+  nav ul{
+    position:absolute;top:100%;left:0;right:0;
+    flex-direction:column;gap:0;
+    background:rgba(6,12,32,.96);
+    border-bottom:1px solid rgba(140,175,255,.15);
+    max-height:0;overflow:hidden;transition:max-height .4s ease;
   }
+  nav ul.open{max-height:320px}
+  nav ul a{display:block;padding:15px 6vw;font-size:12px;letter-spacing:3px}
+  section{padding:96px 6vw 80px}
+}
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation:none!important;transition:none!important}
     html{scroll-behavior:auto}
@@ -224,7 +232,8 @@
 
 <nav>
   <a class="logo" href="#home"><span>♡</span> Paulette's Birthday</a> <!-- [EDIT-NAME] -->
-  <ul>
+  <button id="burger" aria-label="Menu" aria-expanded="false">☰</button>
+  <ul id="nav-links">
     <li><a href="#home">Home</a></li>
     <li><a href="#letter">Letter</a></li>
     <li><a href="#memory">Memory</a></li>
@@ -383,6 +392,16 @@ btn.addEventListener('click',()=>{
 audio.addEventListener('play',()=>{btn.textContent='❚❚';btn.setAttribute('aria-label','Pause music')});
 audio.addEventListener('pause',()=>{btn.textContent='▶';btn.setAttribute('aria-label','Play music')});
 audio.addEventListener('timeupdate',()=>{if(audio.duration)bar.style.width=(audio.currentTime/audio.duration*100)+'%'});
+/* ── mobile menu ── */
+const burger=document.getElementById('burger'),links=document.getElementById('nav-links');
+burger.addEventListener('click',()=>{
+  const open=links.classList.toggle('open');
+  burger.setAttribute('aria-expanded',open);
+  burger.textContent=open?'✕':'☰';
+});
+links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+  links.classList.remove('open');burger.textContent='☰';burger.setAttribute('aria-expanded','false');
+}));
 </script>
 </body>
 </html>
