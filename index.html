@@ -9,7 +9,6 @@
   HOW TO CUSTOMIZE (ctrl+F these markers):
   [EDIT-NAME]    → her name (currently "Baby")
   [EDIT-AGE]     → her age (currently "22nd")
-  [EDIT-LETTER]  → the letter text
   [EDIT-PHOTOS]  → replace placeholder images: put photo1.jpg …
                    photo6.jpg in the same folder as this file,
                    then swap each src="data:..." for src="photo1.jpg"
@@ -19,7 +18,7 @@
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --night-0:#050a18;
@@ -138,20 +137,35 @@
   .player button:hover{background:rgba(127,176,255,.3)}
 
   /* ── letter / envelope ───────────── */
-  .envelope-stage{margin-top:44px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .envelope-stage{
+    margin-top:44px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    perspective:1000px;
+  }
   .envelope{
-    width:min(78vw,320px);aspect-ratio:16/10.5;position:relative;margin:0 auto;
+    width:min(78vw,320px);
+    aspect-ratio:16/10.5;
+    position:relative;
+    margin:0 auto;
     filter:drop-shadow(0 0 34px rgba(110,160,255,.5));
     transition:transform .4s ease;
+    transform-style:preserve-3d;
   }
   .envelope-stage:hover .envelope{transform:translateY(-6px)}
   .envelope .body,.envelope .flap{position:absolute;inset:0;border-radius:10px}
-  .envelope .body{background:linear-gradient(160deg,#31518f,#1c3466);border:1px solid rgba(170,200,255,.35)}
+  .envelope .body{
+    background:linear-gradient(160deg,#31518f,#1c3466);
+    border:1px solid rgba(170,200,255,.35);
+    z-index:1;
+  }
   .envelope .flap{
     clip-path:polygon(0 0,100% 0,50% 62%);
     background:linear-gradient(180deg,#436bb4,#2a4a8a);
-    transform-origin:top;transition:transform .8s cubic-bezier(.5,0,.2,1);
+    transform-origin:top;
+    transition:transform .8s cubic-bezier(.5,0,.2,1);
     border-radius:10px 10px 0 0;
+    z-index:3;
   }
   .envelope .wax{
     position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
@@ -160,26 +174,100 @@
     display:flex;align-items:center;justify-content:center;font-size:22px;
     border:1px solid rgba(200,220,255,.4);
     box-shadow:0 0 24px rgba(120,170,255,.7);
-    transition:opacity .5s;z-index:3;
+    transition:opacity .5s;
+    z-index:4;
   }
   .env-hint{margin-top:20px;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--muted)}
-  .envelope-stage.open .flap{transform:rotateX(180deg)}
+  
+  .envelope-stage.open .flap{transform:rotateX(180deg);z-index:0;}
   .envelope-stage.open .wax{opacity:0;pointer-events:none}
 
-  .letter-card{
-    max-width:680px;margin:26px auto 0;text-align:left;
-    background:var(--card);border:1px solid var(--card-line);border-radius:20px;
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    padding:clamp(28px,5vw,52px);
-    box-shadow:0 20px 60px rgba(0,0,25,.45),inset 0 0 60px rgba(127,176,255,.05);
-    display:none;opacity:0;transform:translateY(26px);
-    transition:opacity 1s ease,transform 1s ease;
+  /* ── unfolded letter card ── */
+  .letter-wrapper {
+    max-width: 680px;
+    width: 100%;
+    margin: -100px auto 0;
+    perspective: 1200px;
+    display: none;
   }
-  .letter-card.show{display:block}
-  .letter-card.in{opacity:1;transform:none}
+  .letter-wrapper.show {
+    display: block;
+  }
+
+  .letter-card{
+    text-align:left;
+    background:var(--card);
+    border:1px solid var(--card-line);
+    border-radius:20px;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    padding:clamp(24px,4vw,44px);
+    box-shadow:0 20px 60px rgba(0,0,25,.45),inset 0 0 60px rgba(127,176,255,.05);
+    transform-origin: top center;
+    transform: rotateX(-90deg) translateY(-20px);
+    opacity: 0;
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+  }
+  .letter-card.unfolded {
+    transform: rotateX(0deg) translateY(0);
+    opacity: 1;
+  }
+
   .letter-card .dear{font-family:var(--serif);font-size:clamp(30px,4.5vw,42px);margin-bottom:20px}
   .letter-card p{color:#c3d2f2;font-size:15px;font-weight:300;margin-bottom:16px}
-  .letter-card .sign{font-family:var(--script);font-size:30px;color:var(--glow);margin-top:26px;text-align:right}
+  .letter-card .sign{font-family:var(--script);font-size:30px;color:var(--glow);margin-top:20px;text-align:right}
+
+  /* ── lyrics area inside letter ── */
+  .lyrics-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--card-line), transparent);
+    margin: 30px 0 24px;
+  }
+  .lyrics-header {
+    text-align: center;
+    font-family: var(--serif);
+    color: var(--ice);
+    font-size: 18px;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+  }
+  .lyrics-container {
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 15px clamp(10px, 3vw, 20px);
+    border-radius: 12px;
+    background: rgba(10, 20, 50, 0.4);
+    border: 1px solid rgba(140, 175, 255, 0.1);
+    scroll-behavior: smooth;
+    text-align: center;
+  }
+  .lyrics-container::-webkit-scrollbar {
+    width: 5px;
+  }
+  .lyrics-container::-webkit-scrollbar-thumb {
+    background: var(--card-line);
+    border-radius: 4px;
+  }
+  .lyric-line {
+    padding: 8px 12px;
+    margin: 4px 0;
+    font-size: 15px;
+    color: var(--muted);
+    border-radius: 8px;
+    transition: all 0.4s ease;
+    cursor: pointer;
+  }
+  .lyric-line:hover {
+    color: var(--white);
+    background: rgba(127, 176, 255, 0.08);
+  }
+  .lyric-line.active {
+    color: var(--white);
+    font-weight: 500;
+    font-size: 16.5px;
+    background: rgba(127, 176, 255, 0.18);
+    box-shadow: 0 0 15px rgba(127, 176, 255, 0.2);
+    text-shadow: 0 0 10px rgba(207, 224, 255, 0.6);
+  }
 
   /* ── memory gallery ──────────────── */
   .gallery{
@@ -231,7 +319,7 @@
 <canvas id="sky" aria-hidden="true"></canvas>
 
 <nav>
-  <a class="logo" href="#home"><span>♡</span> Paulette's Birthday</a> <!-- [EDIT-NAME] -->
+  <a class="logo" href="#home"><span>♡</span> Paulette's Birthday</a>
   <button id="burger" aria-label="Menu" aria-expanded="false">☰</button>
   <ul id="nav-links">
     <li><a href="#home">Home</a></li>
@@ -241,13 +329,12 @@
   </ul>
 </nav>
 
-<!-- [EDIT-SONG] put your song file next to this html file, named song.mp3 -->
 <audio id="song" src="risk it all.mp3" loop preload="none"></audio>
 <div class="player" role="group" aria-label="Music player">
   <div class="cover" aria-hidden="true">🎵</div>
   <div class="meta">
-    <b id="song-title">Risk it all</b>       <!-- [EDIT-SONG] -->
-    <small id="song-artist">Bruno Mars</small>  <!-- [EDIT-SONG] -->
+    <b id="song-title">Risk it all</b>
+    <small id="song-artist">Bruno Mars</small>
     <div class="bar"><i id="song-bar"></i></div>
   </div>
   <button id="play-btn" aria-label="Play music">▶</button>
@@ -260,8 +347,6 @@
   <p class="eyebrow reveal"></p> 
   <h1 class="reveal">Happy Birthday Baby<span class="accent">🥳🎉💐🎈</span></h1>
   <p class="sub reveal">
-    <!-- [EDIT-AGE] + placeholder intro text -->
-    
   </p>
   <span class="heart-big reveal" aria-hidden="true">💙</span>
   <span class="scroll-hint">Scroll to explore</span>
@@ -281,19 +366,14 @@
     <p class="env-hint">Click the wax to open</p>
   </div>
 
-  <div class="letter-card" id="letter-card">
-    <p class="eyebrow" style="text-align:center">Mrs Healer</p>
-    
-    <p>Hey baby, what's up
-      u know how terrible i am with word stuff but since it's ur birthday ima give it a shot.
-    </p>
-    <p>Let me find a song to steal words from real quick🫣</p>
-    <p>Anywho, Happy birthday, and thank you for keeping me from goin crazy this whole time.
-      when i say u the best know i mean it🙂‍↕️
-    </p>
-    <P>PS: I forgot to ask your favorite song so I am using this😁</P>
-    <!-- …and here -->
-    <p class="sign">— Kevin</p>
+  <div class="letter-wrapper" id="letter-wrapper">
+    <div class="letter-card" id="letter-card">
+      <p class="eyebrow" style="text-align:center">Mrs Healer</p>
+
+      <div class="lyrics-divider"></div>
+      <div class="lyrics-header">🎵 Risk It All — Lyrics 🎵</div>
+      <div class="lyrics-container" id="lyrics-box"></div>
+    </div>
   </div>
 </section>
 
@@ -302,8 +382,6 @@
   <p class="eyebrow reveal">every picture tells a story</p>
   <h2 class="reveal">Museum of<span class="accent">Memories</span></h2>
 
-  <!-- [EDIT-PHOTOS] replace each src with photo1.jpg … photo4.jpg and edit captions.
-       Add more <figure class="frame"> blocks for more photos. -->
   <div class="gallery">
     <figure class="frame reveal">
       <img src="1.jpeg" alt="Memory one">
@@ -318,16 +396,16 @@
       <figcaption>🤏</figcaption>
     </figure>
     <figure class="frame reveal">
-  <video src="1.mp4" controls playsinline preload="metadata"></video>
-  <figcaption>🎥</figcaption>
-</figure>
+      <video src="1.mp4" controls playsinline preload="metadata"></video>
+      <figcaption>🎥</figcaption>
+    </figure>
   </div>
 </section>
 
 <!-- ═════════ FINAL ═════════ -->
 <section id="final">
   <p class="eyebrow reveal">always &amp; forever</p>
-  <h2 class="reveal">Well this all I got for now🙂</span></h2>
+  <h2 class="reveal">Well this all I got for now🙂</h2>
   <p class="sub reveal">
     me loves u to the sun and back, and continue bein the best ting in the world🍻. 💙
   </p>
@@ -363,44 +441,154 @@ else requestAnimationFrame(tick);
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.15});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
-/* ── envelope ── */
-const env=document.getElementById('env'),card=document.getElementById('letter-card');
-function openEnv(){
-  if(env.classList.contains('open'))return;
-  audio.play().catch(()=>{});
-  env.classList.add('open');env.setAttribute('aria-expanded','true');
-  setTimeout(()=>{card.classList.add('show');requestAnimationFrame(()=>requestAnimationFrame(()=>card.classList.add('in')));card.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'})},650);
-}
-env.addEventListener('click',openEnv);
-env.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEnv()}});
+/* ── updated lyrics data ── */
+const lyricsData = [
+  { time: 27.24, text: "For just a chance" },
+  { time: 30.22, text: "To win your heart" },
+  { time: 32.48, text: "You could set the bar" },
+  { time: 35.45, text: "Beyond the stars" },
+  { time: 38.25, text: "I'll do anything" },
+  { time: 41.59, text: "Anything you ask me to" },
+  { time: 48.45, text: "Shake you want the moon" },
+  { time: 51.52, text: "Watch me learn to fly" },
+  { time: 54.12, text: "Ain't a mountain you could point to" },
+  { time: 57.65, text: "I wouldn't climb" },
+  { time: 59.88, text: "It's crazy but it's true" },
+  { time: 62.39, text: "There's nothing I won't do" },
+  { time: 65.51, text: "I'd risk it all for you" },
+  { time: 72.01, text: "To hold your hand" },
+  { time: 74.92, text: "And call you mine" },
+  { time: 77.39, text: "I'm trying to be your man" },
+  { time: 79.82, text: "Till the end of time" },
+  { time: 83.08, text: "Oh, I'll do anything" },
+  { time: 86.54, text: "Anything you ask me to" },
+  { time: 93.24, text: "I would run through a fire" },
+  { time: 96.14, text: "Just to be by your side" },
+  { time: 99.19, text: "If your heart's on the line" },
+  { time: 102.14, text: "You could take mine" },
+  { time: 104.38, text: "It's crazy but it's true" },
+  { time: 107.16, text: "There's nothing I won't do" },
+  { time: 110.15, text: "I'd risk it all for you" },
+  { time: 116.78, text: "I would swim across the sea just to show you" },
+  { time: 122.21, text: "Sacrifice my life just to hold you" },
+  { time: 127.45, text: "I could go on and on" },
+  { time: 130.27, text: "To prove that you belong here in my arms" },
+  { time: 160.04, text: "Shake you want the moon" },
+  { time: 162.67, text: "Watch me learn to fly" },
+  { time: 165.38, text: "And a mountain you could point to" },
+  { time: 169.07, text: "I wouldn't climb" },
+  { time: 170.84, text: "It's crazy but it's true" },
+  { time: 174.17, text: "There's nothing I won't do" },
+  { time: 177.19, text: "I'd risk it all for you" },
+  { time: 182.57, text: "It's crazy but it's true" },
+  { time: 185.41, text: "There's nothing I won't do" },
+  { time: 188.57, text: "I'd risk it all for you" }
+];
 
-/* ── music player ── */
-const audio=document.getElementById('song'),btn=document.getElementById('play-btn'),bar=document.getElementById('song-bar');
-/* autoplay attempt + first-interaction fallback */
-function tryPlay(){audio.play().catch(()=>{})}
-tryPlay();
-function firstTouch(){tryPlay();
-  ['pointerdown','touchstart','scroll','keydown'].forEach(e=>removeEventListener(e,firstTouch));
+const lyricsBox = document.getElementById('lyrics-box');
+lyricsData.forEach((item, index) => {
+  const p = document.createElement('div');
+  p.className = 'lyric-line';
+  p.dataset.time = item.time;
+  p.id = `line-${index}`;
+  p.textContent = item.text;
+  p.addEventListener('click', () => {
+    audio.currentTime = item.time;
+    tryPlay();
+  });
+  lyricsBox.appendChild(p);
+});
+
+/* ── envelope & unfolding action ── */
+const env = document.getElementById('env');
+const wrapper = document.getElementById('letter-wrapper');
+const card = document.getElementById('letter-card');
+
+function openEnv(){
+  if(env.classList.contains('open')) return;
+  tryPlay();
+  env.classList.add('open');
+  env.setAttribute('aria-expanded','true');
+  
+  setTimeout(() => {
+    wrapper.classList.add('show');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        card.classList.add('unfolded');
+      });
+    });
+    wrapper.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+  }, 600);
+}
+
+env.addEventListener('click', openEnv);
+env.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openEnv(); } });
+
+/* ── music player & lyrics sync ── */
+const audio = document.getElementById('song');
+const btn = document.getElementById('play-btn');
+const bar = document.getElementById('song-bar');
+
+function tryPlay(){ audio.play().catch(()=>{}); }
+
+function firstTouch(){
+  tryPlay();
+  ['pointerdown','touchstart','scroll','keydown'].forEach(e => removeEventListener(e, firstTouch));
 }
 if(audio.paused){
-  ['pointerdown','touchstart','scroll','keydown'].forEach(e=>addEventListener(e,firstTouch,{passive:true}));
+  ['pointerdown','touchstart','scroll','keydown'].forEach(e => addEventListener(e, firstTouch, {passive:true}));
 }
-btn.addEventListener('click',()=>{
-  if(audio.paused){audio.play().catch(()=>alert('Add your song as "song.mp3" next to this file 🎵'));}
+
+btn.addEventListener('click', () => {
+  if(audio.paused){ audio.play().catch(() => alert('Add your song as "risk it all.mp3" next to this file 🎵')); }
   else audio.pause();
 });
-audio.addEventListener('play',()=>{btn.textContent='❚❚';btn.setAttribute('aria-label','Pause music')});
-audio.addEventListener('pause',()=>{btn.textContent='▶';btn.setAttribute('aria-label','Play music')});
-audio.addEventListener('timeupdate',()=>{if(audio.duration)bar.style.width=(audio.currentTime/audio.duration*100)+'%'});
-/* ── mobile menu ── */
-const burger=document.getElementById('burger'),links=document.getElementById('nav-links');
-burger.addEventListener('click',()=>{
-  const open=links.classList.toggle('open');
-  burger.setAttribute('aria-expanded',open);
-  burger.textContent=open?'✕':'☰';
+
+audio.addEventListener('play', () => { btn.textContent = '❚❚'; btn.setAttribute('aria-label','Pause music'); });
+audio.addEventListener('pause', () => { btn.textContent = '▶'; btn.setAttribute('aria-label','Play music'); });
+
+let activeIndex = -1;
+audio.addEventListener('timeupdate', () => {
+  if (audio.duration) bar.style.width = (audio.currentTime / audio.duration * 100) + '%';
+  
+  const curTime = audio.currentTime;
+  let currentLineIdx = -1;
+  
+  for (let i = 0; i < lyricsData.length; i++) {
+    if (curTime >= lyricsData[i].time) {
+      currentLineIdx = i;
+    } else {
+      break;
+    }
+  }
+
+  if (currentLineIdx !== activeIndex) {
+    if (activeIndex !== -1) {
+      const prevEl = document.getElementById(`line-${activeIndex}`);
+      if (prevEl) prevEl.classList.remove('active');
+    }
+    if (currentLineIdx !== -1) {
+      const curEl = document.getElementById(`line-${currentLineIdx}`);
+      if (curEl) {
+        curEl.classList.add('active');
+        curEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+    activeIndex = currentLineIdx;
+  }
 });
-links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
-  links.classList.remove('open');burger.textContent='☰';burger.setAttribute('aria-expanded','false');
+
+/* ── mobile menu ── */
+const burger = document.getElementById('burger'), links = document.getElementById('nav-links');
+burger.addEventListener('click', () => {
+  const open = links.classList.toggle('open');
+  burger.setAttribute('aria-expanded', open);
+  burger.textContent = open ? '✕' : '☰';
+});
+links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  links.classList.remove('open');
+  burger.textContent = '☰';
+  burger.setAttribute('aria-expanded', 'false');
 }));
 </script>
 </body>
